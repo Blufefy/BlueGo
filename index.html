@@ -1,0 +1,152 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon"href="icon.png">
+    <title>BlueWAY </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background:lightcayn ;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(to bottom , skyblue , #fff);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            border: none ;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            outline:none ;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #fff;
+)            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-left: 10px;
+        }
+
+        button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item h3 {
+            margin: 0 0 5px 0;
+        }
+
+        .result-item p {
+            margin: 0;
+            color: #555;
+        }
+
+        .result-image {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BlueGO</h1>
+        <input type="text" id="search-query" placeholder="Search...">
+        <button id="search-button">Search</button>
+        <button id="search-images-button">Search Images</button>
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        document.getElementById('search-button').addEventListener('click', function() {
+            const query = document.getElementById('search-query').value;
+            search(query, false);
+        });
+
+        document.getElementById('search-images-button').addEventListener('click', function() {
+            const query = document.getElementById('search-query').value;
+            search(query, true);
+        });
+
+        function search(query, isImageSearch) {
+            const apiKey = 'AIzaSyDkdXhTEtW4xWjwZ8bmZRxGIdCTBhgAtik';  // Replace with your API key
+            const cx = '864ff7a39a1484112';  // Replace with your custom search engine ID
+            const searchType = isImageSearch ? '&searchType=image' : '';
+
+            if (query) {
+                fetch(`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}${searchType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        displayResults(data.items);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        document.getElementById('results').innerHTML = '<p>Error fetching results.</p>';
+                    });
+            }
+        }
+
+        function displayResults(items) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = ''; // Clear previous results
+
+            if (items) {
+                items.forEach(item => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+
+                    if (item.pagemap && item.pagemap.cse_image && item.pagemap.cse_image.length > 0) {
+                        // Image results
+                        resultItem.innerHTML = `
+                            <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+                            <img class="result-image" src="${item.pagemap.cse_image[0].src}" alt="${item.title}">
+                            <p>${item.snippet}</p>
+                        `;
+                    } else {
+                        // Regular results
+                        resultItem.innerHTML = `
+                            <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+                            <p>${item.snippet}</p>
+                        `;
+                    }
+
+                    resultsContainer.appendChild(resultItem);
+                });
+            } else {
+                resultsContainer.innerHTML = '<p>No results found.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
