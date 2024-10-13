@@ -4,5 +4,6 @@
   "background_color": "#ffffff",
   "short_name": "BGO",
   "id": "BlueGO",
+  "display": "standalone",
   "description": "It is the best searching app"
 }
